@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Dec 29 18:20:47 2024
-
-@author: lukas
-"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,15 +31,15 @@ lme_prices = [
     4356.3, 4031.2, 4038.2, 3907.6, 3627.9, 3681.1, 3913.5, 3717.6, 3716.9, 3602.0, 3643.2, 3762.1   # 2023
 ]
 
-# Erstelle DataFrame mit Datumsangaben für Lithium
+# DataFrame mit Datumsangaben für Lithium
 dates = pd.date_range(start='2021-01-01', periods=len(lithium_prices), freq='M')
 data = pd.DataFrame({'Date': dates, 'Lithium Prices': lithium_prices, 'LME Prices': lme_prices})
 
-# Erstelle DataFrame mit Datumsangaben für Nickel
+# DataFrame mit Datumsangaben für Nickel
 dates2 = pd.date_range(start='2021-01-01', periods=len(nickel_prices), freq='M')
 data2 = pd.DataFrame({'Date': dates2, 'Nickel Prices': nickel_prices, 'LME Prices': lme_prices})
 
-# Erstelle DataFrame mit Datumsangaben für Kobalt
+# DataFrame mit Datumsangaben für Kobalt
 dates3 = pd.date_range(start='2021-01-01', periods=len(cobalt_prices), freq='M')
 data3 = pd.DataFrame({'Date': dates, 'Cobalt Prices': cobalt_prices, 'LME Prices': lme_prices})
 
@@ -81,7 +75,7 @@ plt.xlim([pd.Timestamp('2021-01-01'), pd.Timestamp('2023-12-31')])
 plt.xticks(data['Date'][::12], labels=['2021', '2022', '2023'])
 plt.ylim(50,950)
 
-# Diagramm anzeigen Lithium vs LME
+# Diagramm anzeigen Lithium vs. LME-Index
 
 plt.tight_layout()
 plt.show()
@@ -147,11 +141,69 @@ plt.tight_layout()
 plt.show()
 
 
+
+
+# normierte HHI Werte - Balkendiagramm
+
+
+# Daten aus Tabelle 51 (Anhang E)
+
+rohstoffe = ["Lithium", "Nickel", "Kobalt", "Natürlicher Graphit"]
+kategorien = ["Förderkapazität", "Reserven", "Veredelungskapazität"]
+
+hhi_werte = [
+    [2974.57, 1989.5, 4189],        # Lithium
+    [2609.96, 2354.04, 2795.05],    # Nickel
+    [5323.13, 3353, 5928.58],       # Kobalt
+    [5690.66, 1653, 7225]           # Natürlicher Graphit
+]
+
+# Farben für die Kategorien
+farben = ["#1f77b4", "#ff7f0e", "#2ca02c"]  # Blau, Orange, Grün
+
+# Positionen für die Balken
+x_pos = np.arange(len(rohstoffe))  # [0, 1, 2, 3]
+bar_width = 0.25  # Breite der Balken
+
+# Initialisiere das Diagramm
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Plotte die Balken für jede Kategorie
+for i, kategorie in enumerate(kategorien):
+    # Verschieben der Balken je nach Kategorie
+    bar_positions = x_pos + i * bar_width
+    hhi_values = [hhi_werte[j][i] for j in range(len(rohstoffe))]
+    ax.bar(bar_positions, hhi_values, width=bar_width, color=farben[i], label=kategorie)
+
+# Anpassung der Achsen und Beschriftung
+ax.set_xlabel("Rohstoffe")
+ax.set_ylabel("HHI-Wert (normiert)")
+ax.set_title("Normierter Herfindahl-Hirschman Index (85% Marktabdeckung)")
+ax.set_xticks(x_pos + bar_width)  # Position der Rohstoffnamen
+ax.set_xticklabels(rohstoffe)
+ax.legend(title="Kategorien")
+
+# Ausgabe des Diagramms
+
+plt.tight_layout()
+plt.show()
+
+# Normierung der Werte für jede Spalte (also für jedes HHI-Kriterium)
+normierte_werte = [
+    [hhi_werte[j][i] / max(hhi_werte[k][i] for k in range(len(rohstoffe))) for j in range(len(rohstoffe))]
+    for i in range(len(kategorien))
+]
+
+# Ausgabe der normierten Werte
+print("Normierte HHI Werte nach risikoreichstem Wert der Kategorie:")
+for i, kategorie in enumerate(kategorien):
+    print(f"{kategorie}: {normierte_werte[i]}")
+
+
 # Benchmark-Index Varianz Berechnung
 
 var = np.cov(data['Lithium Indexed'],data['LME Indexed'])[1, 1]
 print("Die Varianz des Benchmark LME Index ist " + str(var))
-
 
 
 # Kovarianz von Lithium und Benchmark-Index und Risiko-Beta Berechnung aus 
@@ -276,7 +328,7 @@ print("Die Preisvolatilität gemessen als annualisierte Standardabweichung der "
 
 
 
-# ADP-Indikator Balkendiagramm (alle vier kritische Rohstoffe + normiert)
+# ADP-Indikator Balkendiagramm (alle vier kritischen Rohstoffe + Normierung)
 
 # Rohstoffe und ihre Werte
 rohstoffe = ['Lithium', 'Kobalt', 'Nickel', 'Natürlicher Graphit']
@@ -298,7 +350,7 @@ ax.set_ylabel('Normierter ADP-Wert, logarithmiert')
 ax.set_yscale('log')
 
 
-#Ausgabe normierte Werte
+# Ausgabe normierte Werte
 print("Normierte ADP-Werte nach risikoreichstem Wert:")
 print(normierte_werte)
 
@@ -307,7 +359,7 @@ plt.tight_layout()
 plt.show()
 
 
-#ADP-Indikator Balkendiagramm (Lithium, Kobalt, Nickel + normiert)
+#ADP-Indikator Balkendiagramm (Lithium, Kobalt, Nickel + Normierung)
 
 # Rohstoffe und ihre Werte
 rohstoffe = ['Lithium', 'Kobalt', 'Nickel']
@@ -333,62 +385,6 @@ print(normierte_werte)
 plt.tight_layout()
 plt.show()
 
-
-# normierte HHI Werte - Balkendiagramm
-
-
-# Daten aus Tabelle (Anhang E)
-
-rohstoffe = ["Lithium", "Nickel", "Kobalt", "Natürlicher Graphit"]
-kategorien = ["Förderkapazität", "Reserven", "Veredelungskapazität"]
-
-hhi_werte = [
-    [2974.57, 1989.5, 4189],        # Lithium
-    [2609.96, 2354.04, 2795.05],    # Nickel
-    [5323.13, 3353, 5928.58],       # Kobalt
-    [5690.66, 1653, 7225]           # Natürlicher Graphit
-]
-
-# Farben für die Kategorien
-farben = ["#1f77b4", "#ff7f0e", "#2ca02c"]  # Blau, Orange, Grün
-
-# Positionen für die Balken
-x_pos = np.arange(len(rohstoffe))  # [0, 1, 2, 3]
-bar_width = 0.25  # Breite der Balken
-
-# Initialisiere das Diagramm
-fig, ax = plt.subplots(figsize=(10, 6))
-
-# Plotte die Balken für jede Kategorie
-for i, kategorie in enumerate(kategorien):
-    # Verschieben der Balken je nach Kategorie
-    bar_positions = x_pos + i * bar_width
-    hhi_values = [hhi_werte[j][i] for j in range(len(rohstoffe))]
-    ax.bar(bar_positions, hhi_values, width=bar_width, color=farben[i], label=kategorie)
-
-# Anpassung der Achsen und Beschriftung
-ax.set_xlabel("Rohstoffe")
-ax.set_ylabel("HHI-Wert (normiert)")
-ax.set_title("Normierter Herfindahl-Hirschman Index (85% Marktabdeckung)")
-ax.set_xticks(x_pos + bar_width)  # Position der Rohstoffnamen
-ax.set_xticklabels(rohstoffe)
-ax.legend(title="Kategorien")
-
-# Ausgabe des Diagramms
-
-plt.tight_layout()
-plt.show()
-
-# Normierung der Werte für jede Spalte (also für jedes HHI-Kriterium)
-normierte_werte = [
-    [hhi_werte[j][i] / max(hhi_werte[k][i] for k in range(len(rohstoffe))) for j in range(len(rohstoffe))]
-    for i in range(len(kategorien))
-]
-
-# Ausgabe der normierten Werte
-print("Normierte HHI Werte nach risikoreichstem Wert der Kategorie:")
-for i, kategorie in enumerate(kategorien):
-    print(f"{kategorie}: {normierte_werte[i]}")
 
 
 # Durchführbarkeit der Förderung
@@ -570,7 +566,71 @@ wgi_values = [
     42.73, 93.67, 89.75
 ]
 
-# Sortiere Länder und Werte nach Ländernamen für bessere Lesbarkeit
+# Mapping der Länder auf ihre WGI-Werte
+wgi_dict = dict(zip(countries, wgi_values))
+
+   # Datensätze Förderung, Marktanteile normiert
+rohstoffe_förderung = {
+    "Lithium": {
+        "Länder": ["Australien", "Chile", "China"],
+        "Marktanteile": [46.95, 23.84, 14.21],
+    },
+    "Nickel": {
+        "Länder": ["Indonesien", "Philippinen", "Russland", "Neu-Kaledonien", "Kanada", "Australien", "China"],
+        "Marktanteile": [48.53, 10.65, 6.83, 6.13, 5.02, 4.72, 3.11],
+    },
+    "Kobalt": {
+        "Länder": ["Kongo", "Indonesien", "Russland", "Australien"],
+        "Marktanteile": [72.59, 4.87, 4.67, 2.88],
+    },
+    "natürlicher Graphit": {
+        "Länder": ["China", "Mosambik"],
+        "Marktanteile": [74.73, 10.30],
+    },
+}
+
+# Daten Veredelung, Marktanteile normiert
+rohstoffe_veredelung = {
+    "Lithium": {
+        "Länder": ["China", "Argentinien", "Australien"],
+        "Marktanteile": [62.84, 12.5, 9.16],
+    },
+    "Nickel": {
+        "Länder": ["China", "Finnland", "Indonesien", "Japan"],
+        "Marktanteile": [48, 16.98, 11.09, 8.93],
+    },
+    "Kobalt": {
+        "Länder": ["China", "Finnland"],
+        "Marktanteile": [76.53, 8.47],
+    },
+    "Natürlicher Graphit": {
+        "Länder": ["China"],
+        "Marktanteile": [85],
+    }
+}
+
+# Funktion zur Berechnung des gewichteten WGI-Werts
+def berechne_risiko(rohstoff_daten):
+    risiko = {}
+    for rohstoff, daten in rohstoff_daten.items():
+        wert = sum(marktanteil * wgi_dict[land] for land, marktanteil in zip(daten["Länder"], daten["Marktanteile"]))
+        risiko[rohstoff] = wert / 100  # Normalisierung, da Marktanteile in Prozent gegeben sind
+    return risiko
+
+# Berechnung für Förderung und Veredelung
+risiko_förderung = berechne_risiko(rohstoffe_förderung)
+risiko_veredelung = berechne_risiko(rohstoffe_veredelung)
+
+# Ausgabe der Ergebnisse
+print("Geopolitische Stabilität Förderung:")
+for rohstoff, risiko in risiko_förderung.items():
+    print(f"{rohstoff}: {risiko:.2f}")  # Ausgabe mit zwei Nachkommastellen
+
+print("\nGeopolitische Stabilität Veredelung:")
+for rohstoff, risiko in risiko_veredelung.items():
+    print(f"{rohstoff}: {risiko:.2f}")  # Ausgabe mit zwei Nachkommastellen
+    
+# Länder und Werte nach Ländernamen sortieren
 sorted_indices = np.argsort(countries)
 countries_sorted = np.array(countries)[sorted_indices]
 wgi_values_sorted = np.array(wgi_values)[sorted_indices]
@@ -596,10 +656,10 @@ plt.show()
 # Gewichtungsmethode: Basis-Modell 
 # Normierung: Relation zum risikoreichsten Wert
 
-# Daten aus der Tabelle 14 und 31
+# Daten aus den Tabellen 14 und 31
 rohstoffe = ['Lithium', 'Nickel', 'Kobalt', 'Natürlicher Graphit']
 nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhung 2023-2030
-gesamt_risikoscore = [59.74, 66.37, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
+gesamt_risikoscore = [59.74, 70.01, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
 cagr_values = [15.13, 19.4, 9.87, 16.84]
@@ -662,10 +722,10 @@ plt.show()
 # Gewichtungsmethode: Basismodell
 # Normierung: Relation zum risikoreichsten Wert
 
-# Daten aus der Tabelle 14 und 31
+# Daten aus den Tabellen 14 und 31
 rohstoffe = ['Lithium', 'Nickel', 'Kobalt', 'Natürlicher Graphit']
 nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhung 2023-2030
-gesamt_risikoscore = [59.74, 66.37, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
+gesamt_risikoscore = [59.74, 70.01, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
 cagr_values = [15.13, 19.4, 9.87, 16.84]
@@ -718,10 +778,10 @@ plt.show()
 # Gewichtungsmethode: Basismodell
 # Normierung: Min-Max
 
-# Daten aus der Tabelle 14 und 31
+# Daten aus den Tabellen 14 und 31
 rohstoffe = ['Lithium', 'Nickel', 'Kobalt', 'Natürlicher Graphit']
 nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhung 2023-2030
-gesamt_risikoscore = [41.6, 38.21, 65.99, 52.61]  # Gesamtrisikoscore (Förderung + Veredelung)
+gesamt_risikoscore = [41.6, 36.93, 65.99, 52.61]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
 cagr_values = [15.13, 19.4, 9.87, 16.84]
@@ -734,7 +794,7 @@ farben = {
     'Natürlicher Graphit': 'purple'
 }
 
-# Kategorisierung der x-Achse-Bereiche:
+# Kategorisierung der x-Achsen-Bereiche:
 categories = ['5% CAGR', '10% CAGR', '15% CAGR', '20% CAGR', '25% CAGR']
 category_bounds = [5, 10, 15, 20, 25]  # Grenzen in Prozent für die Kategorien
 
@@ -799,10 +859,10 @@ plt.show()
 # Daten aus der Tabelle 14 und 31
 rohstoffe = ['Lithium', 'Nickel', 'Kobalt', 'Natürlicher Graphit']
 nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhung 2023-2030
-gesamt_risikoscore = [59.74, 66.37, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
+gesamt_risikoscore = [59.74, 70.01, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Tabelle 33
-gesamt_risiko_neugewichtung = [57.27, 68.82, 81.06, 63.68]  # Neugewichtet
+gesamt_risiko_neugewichtung = [57.27, 68.27, 81.06, 63.68]  # Neugewichtet
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
 cagr_values = [15.13, 19.4, 9.87, 16.84]
@@ -870,10 +930,10 @@ plt.show()
 # Gewichtungsmethode: Basis vs. Indikatorengleichgewicht
 # Normierung: Min-Max
 
-# Daten aus der Tabelle 14 und 31
+# Daten aus den Tabellen 14 und 31
 rohstoffe = ['Lithium', 'Nickel', 'Kobalt', 'Natürlicher Graphit']
 nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhung 2023-2030
-gesamt_risikoscore = [41.6, 38.21, 65.99, 52.61]  # Gesamtrisikoscore (Förderung + Veredelung)
+gesamt_risikoscore = [41.6, 36.93, 65.99, 52.61]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
 cagr_values = [15.13, 19.4, 9.87, 16.84]
@@ -899,8 +959,8 @@ for cagr in cagr_values:
             x_positions.append(x_position)
             break
 
-# Daten aus dem Indikator-Gleichgewichts-Modell
-indikator_gesamt_risikoscore = [35.5, 40.4, 68.1, 47.7]  # Indikator-Gleichgewichts-Modell (Punkte für das gleiche Rohstoffe)
+# Daten aus dem Indikator-Gleichgewichts-Modell (Anhang C)
+indikator_gesamt_risikoscore = [35.5, 39.59, 68.1, 47.7]  # Indikator-Gleichgewichts-Modell 
 
 # Erstellen des Plots
 fig, ax = plt.subplots(figsize=(12, 6))  # Größere Breite für Klarheit
@@ -947,7 +1007,7 @@ plt.show()
 
 # Funktion zur Berechnung der Min-Max Normierung und Relation zum risikoreichsten Wert.
 # Absolute Werte aus Kapitel 5 wurden für jeden Indikator in 'werte' eingefügt
-# um die Min-Max normierten relativen Risikowerte zu erhalten.
+# um die min-max normierten relativen Risikowerte zu erhalten.
 
 def berechne_normierungen(werte):
     min_wert = min(werte)
@@ -966,67 +1026,7 @@ def berechne_normierungen(werte):
     return normierte_werte, relation_max_werte
 
 # Beispielwerte
-werte = [24.98,22.09,21.87,22.71]
+werte = [21.45,60.4,86.99,50.42]
 
 # Berechnungen durchführen
 berechne_normierungen(werte)
-
-# Normierte Marktanteile mit 85% Marktabdeckung aus Kapitel 4.3 (s.h. Anhang für Tabelle)
-rohstoffe = {
-    "Lithium": {
-        "Förderung": {
-            "Marktanteile": {"Australien": 46.95, "Chile": 23.84, "China": 14.21},
-            "HHI": 2974.57
-        },
-        "Reserven": {
-            "Marktanteile": {"Chile": 34.10, "Australien": 22.69, "Argentinien": 13.24, "China": 10.98, "USA": 4.00},
-            "HHI": 1989.50
-        },
-        "Veredelung": {
-            "Marktanteile": {"China": 62.84, "Argentinien": 12.50, "Australien": 9.16},
-            "HHI": 4189
-        }
-    },
-    "Nickel": {
-        "Förderung": {
-            "Marktanteile": {"Indonesien": 48.53, "Philippinen": 10.65, "Russland": 6.83, "Neu-Kaledonien": 6.13, "Kanada": 5.02, "Australien": 4.72, "China": 3.11},
-            "HHI": 2609.96
-        },
-        "Reserven": {
-            "Marktanteile": {"Indonesien": 42.30, "Australien": 18.50, "Brasilien": 12.30, "Russland": 6.40, "Neu-Kaledonien": 5.50},
-            "HHI": 2354.04
-        },
-        "Veredelung": {
-            "Marktanteile": {"China": 48.00, "Finnland": 16.98, "Indonesien": 11.09, "Japan": 8.93},
-            "HHI": 2795.05
-        }
-    },
-    "Kobalt": {
-        "Förderung": {
-            "Marktanteile": {"Kongo": 72.59, "Indonesien": 4.87, "Russland": 4.67, "Australien": 2.88},
-            "HHI": 5323.13
-        },
-        "Reserven": {
-            "Marktanteile": {"Kongo": 55.25, "Australien": 15.68, "Kuba": 4.65, "Indonesien": 4.65, "Philippinen": 2.43, "Russland": 2.33},
-            "HHI": 3353.00
-        },
-        "Veredelung": {
-            "Marktanteile": {"China": 76.53, "Finnland": 8.47},
-            "HHI": 5928.58
-        }
-    },
-    "Natürlicher Graphit": {
-        "Förderung": {
-            "Marktanteile": {"China": 74.73, "Mosambik": 10.30},
-            "HHI": 5690.66
-        },
-        "Reserven": {
-            "Marktanteile": {"China": 27.48, "Brasilien": 26.00, "Mosambik": 8.77, "Madagaskar": 8.47, "Tanzania": 6.30, "Russland": 4.92, "Indien": 3.05},
-            "HHI": 1653.00
-        },
-        "Veredelung": {
-            "Marktanteile": {"China": 85.00},
-            "HHI": 7225
-        }
-    }
-}
