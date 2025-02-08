@@ -143,7 +143,7 @@ plt.show()
 
 
 
-# normierte HHI Werte - Balkendiagramm
+# Normierte HHI Werte - Balkendiagramm
 
 
 # Daten aus Tabelle 51 (Anhang E)
@@ -299,7 +299,7 @@ print("Die Preisvolatilität gemessen als annualisierte Standardabweichung der "
 
 
 
-# DataFrame erstellen Nickel Preise für Volatilitätsberechnung
+# DataFrame erstellen Kobalt Preise für Volatilitätsberechnung
 
 df_cobalt = pd.DataFrame(cobalt_prices)
 
@@ -456,7 +456,7 @@ for rohstoff, daten in rohstoffe.items():
 # Durchführbarkeit der Veredelung
 
 
-# Ease of Doing Business Score der Veredelungsländer
+# Ease of Doing Business (edo) Score der Veredelungsländer
 länder = ["China", "Argentinien", "Australien", "Finnland", "Indonesien", "Japan"]
 edo_scores = [77.9, 59, 81.2, 80.2, 69.6, 78]
 
@@ -554,20 +554,20 @@ for rohstoff, daten in rohstoffe.items():
 # Geopolitische Risiken (World Governance Indikatoren)
 
 # Daten: Länder und deren WGI-Werte
-countries = [
+länder = [
     "Australien", "Chile", "China", "Indonesien", "Philippinen", 
     "Russland", "Neu-Kaledonien", "Kanada", "Kongo", "Mosambik", 
     "Argentinien", "Finnland", "Japan"
 ]
-# Durchschnittliche aggregierte World-Governance-Indikator Werte (Sechs Indikatoren)
-wgi_values = [
+# Durchschnittliche aggregierte World-Governance-Indikator (wgi) Werte (Sechs Indikatoren)
+wgi_werte = [
     92.705, 72.48, 41.97, 49.17, 42.61, 
     15.58, 40, 90.52, 7.26, 22.30, 
     42.73, 93.67, 89.75
 ]
 
 # Mapping der Länder auf ihre WGI-Werte
-wgi_dict = dict(zip(countries, wgi_values))
+wgi_mapping = dict(zip(länder, wgi_werte))
 
    # Datensätze Förderung, Marktanteile normiert
 rohstoffe_förderung = {
@@ -613,7 +613,7 @@ rohstoffe_veredelung = {
 def berechne_risiko(rohstoff_daten):
     risiko = {}
     for rohstoff, daten in rohstoff_daten.items():
-        wert = sum(marktanteil * wgi_dict[land] for land, marktanteil in zip(daten["Länder"], daten["Marktanteile"]))
+        wert = sum(marktanteil * wgi_mapping[land] for land, marktanteil in zip(daten["Länder"], daten["Marktanteile"]))
         risiko[rohstoff] = wert / 100  # Normalisierung, da Marktanteile in Prozent gegeben sind
     return risiko
 
@@ -631,13 +631,13 @@ for rohstoff, risiko in risiko_veredelung.items():
     print(f"{rohstoff}: {risiko:.2f}")  # Ausgabe mit zwei Nachkommastellen
     
 # Länder und Werte nach Ländernamen sortieren
-sorted_indices = np.argsort(countries)
-countries_sorted = np.array(countries)[sorted_indices]
-wgi_values_sorted = np.array(wgi_values)[sorted_indices]
+sortierte_indices = np.argsort(länder)
+länder_sortiert = np.array(länder)[sortierte_indices]
+wgi_werte_sortiert = np.array(wgi_werte)[sortierte_indices]
 
 # Plot erstellen
 plt.figure(figsize=(12, 6))
-plt.bar(countries_sorted, wgi_values_sorted, color="skyblue")
+plt.bar(länder_sortiert, wgi_werte_sortiert, color="skyblue")
 
 # Titel und Achsenbeschriftungen
 plt.title("World Governance Indicators (WGI) Werte pro Land", fontsize=14)
@@ -662,7 +662,7 @@ nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhu
 gesamt_risikoscore = [59.74, 70.01, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
-cagr_values = [15.13, 19.4, 9.87, 16.84]
+cagr_werte = [15.13, 19.4, 9.87, 16.84]
 
 # Anfangswert
 initial_value = 1
@@ -675,8 +675,8 @@ category_bounds = [5, 10, 15, 20, 25]  # Grenzen in Prozent für die Kategorien
 rohstoff_colors = ['blue', 'green', 'red', 'purple']
 
 # Zuordnung der CAGR-Werte zu den Kategorien und proportionaler Berechnung der Position
-x_positions = []
-for cagr in cagr_values:
+x_positionen = []
+for cagr in cagr_werte:
     for i in range(len(category_bounds) - 1):
         if category_bounds[i] <= cagr < category_bounds[i + 1]:
             # Berechnung der proportionalen Position innerhalb der Kategorie
@@ -684,7 +684,7 @@ for cagr in cagr_values:
             upper_bound = category_bounds[i + 1]
             proportional_position = (cagr - lower_bound) / (upper_bound - lower_bound)
             x_position = i + proportional_position
-            x_positions.append(x_position)
+            x_positionen.append(x_position)
             break
 
 # Erstellen des Plots
@@ -702,7 +702,7 @@ ax.set_ylim(0, 100)
 
 # Punkte plotten
 for i, rohstoff in enumerate(rohstoffe):
-    ax.scatter(x_positions[i], gesamt_risikoscore[i], color=rohstoff_colors[i], label=f'{rohstoff} (CAGR:{cagr_values[i]:.1f}%)', s=100)
+    ax.scatter(x_positionen[i], gesamt_risikoscore[i], color=rohstoff_colors[i], label=f'{rohstoff} (CAGR:{cagr_werte[i]:.1f}%)', s=100)
 
 # Titel und Achsenbeschriftungen
 ax.set_title('Risiko-Nachfrageerhöhungsmatrix', fontsize=14, weight='bold')
@@ -728,7 +728,7 @@ nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhu
 gesamt_risikoscore = [59.74, 70.01, 80.42, 63.67]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
-cagr_values = [15.13, 19.4, 9.87, 16.84]
+cagr_werte = [15.13, 19.4, 9.87, 16.84]
 
 # Farben für die Rohstoffe
 colors = {'Lithium': 'blue', 'Nickel': 'green', 'Kobalt': 'red', 'Natürlicher Graphit': 'purple'}
@@ -748,7 +748,7 @@ ax.set_ylim(0, 100)
 
 # Punkte plotten
 for i, rohstoff in enumerate(rohstoffe):
-    ax.scatter(cagr_values[i] / 5 - 1, gesamt_risikoscore[i], color=colors[rohstoff], label=f'{rohstoff} (CAGR:{cagr_values[i]:.1f}%)', s=100)
+    ax.scatter(cagr_werte[i] / 5 - 1, gesamt_risikoscore[i], color=colors[rohstoff], label=f'{rohstoff} (CAGR:{cagr_werte[i]:.1f}%)', s=100)
 
 # Linien für die Quadranten
 ax.axvline(x=1.5, color='black', linestyle='--')  # Vertikale Linie bei 12.5% CAGR
@@ -784,7 +784,7 @@ nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhu
 gesamt_risikoscore = [41.6, 36.93, 65.99, 52.61]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
-cagr_values = [15.13, 19.4, 9.87, 16.84]
+cagr_werte = [15.13, 19.4, 9.87, 16.84]
 
 # Feste Farbzuordnung für jedes Rohstoff
 farben = {
@@ -799,8 +799,8 @@ categories = ['5% CAGR', '10% CAGR', '15% CAGR', '20% CAGR', '25% CAGR']
 category_bounds = [5, 10, 15, 20, 25]  # Grenzen in Prozent für die Kategorien
 
 # Zuordnung der CAGR-Werte zu den Kategorien und proportionaler Berechnung der Position
-x_positions = []
-for cagr in cagr_values:
+x_positionen = []
+for cagr in cagr_werte:
     for i in range(len(category_bounds) - 1):
         if category_bounds[i] <= cagr < category_bounds[i + 1]:
             # Berechnung der proportionalen Position innerhalb der Kategorie
@@ -808,7 +808,7 @@ for cagr in cagr_values:
             upper_bound = category_bounds[i + 1]
             proportional_position = (cagr - lower_bound) / (upper_bound - lower_bound)
             x_position = i + proportional_position
-            x_positions.append(x_position)
+            x_positionen.append(x_position)
             break
 
 # Erstellen des Plots
@@ -826,7 +826,7 @@ ax.set_ylim(0, 100)
 
 # Punkte plotten mit festen Farben
 for i, rohstoff in enumerate(rohstoffe):
-    ax.scatter(x_positions[i], gesamt_risikoscore[i], color=farben[rohstoff], label=f'{rohstoff} (CAGR:{cagr_values[i]:.1f}%)', s=100)
+    ax.scatter(x_positionen[i], gesamt_risikoscore[i], color=farben[rohstoff], label=f'{rohstoff} (CAGR:{cagr_werte[i]:.1f}%)', s=100)
 
 # Linien für die Quadranten
 ax.axvline(x=1.5, color='black', linestyle='--')  # Vertikale Linie bei 12.5% CAGR
@@ -865,7 +865,7 @@ gesamt_risikoscore = [59.74, 70.01, 80.42, 63.67]  # Gesamtrisikoscore (Förderu
 gesamt_risiko_neugewichtung = [57.27, 68.27, 81.06, 63.68]  # Neugewichtet
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
-cagr_values = [15.13, 19.4, 9.87, 16.84]
+cagr_werte = [15.13, 19.4, 9.87, 16.84]
 
 # Farben für die Rohstoffe
 farben = {
@@ -881,7 +881,7 @@ category_bounds = [5, 10, 15, 20, 25]  # Grenzen in Prozent für die Kategorien
 
 # Zuordnung der CAGR-Werte zu den Kategorien und proportionaler Berechnung der Position
 x_positions = []
-for cagr in cagr_values:
+for cagr in cagr_werte:
     for i in range(len(category_bounds) - 1):
         if category_bounds[i] <= cagr < category_bounds[i + 1]:
             # Berechnung der proportionalen Position innerhalb der Kategorie
@@ -936,7 +936,7 @@ nachfrageerhöhung = [168.14, 245.95, 93.2, 197]  # Prozentuale Nachfrageerhöhu
 gesamt_risikoscore = [41.6, 36.93, 65.99, 52.61]  # Gesamtrisikoscore (Förderung + Veredelung)
 
 # Daten aus Kapitel 4.5.3 (CAGR-Werte) der kritischen Rohstoffe im Basis-Szenario
-cagr_values = [15.13, 19.4, 9.87, 16.84]
+cagr_werte = [15.13, 19.4, 9.87, 16.84]
 
 # Kategorisierung der x-Achse-Bereiche:
 categories = ['5% CAGR', '10% CAGR', '15% CAGR', '20% CAGR', '25% CAGR']
@@ -947,8 +947,8 @@ colors = ['blue', 'green', 'darkblue', 'red']
 point_colors = colors  # Weisen Sie die Farben direkt zu
 
 # Zuordnung der CAGR-Werte zu den Kategorien und proportionaler Berechnung der Position
-x_positions = []
-for cagr in cagr_values:
+x_positionen = []
+for cagr in cagr_werte:
     for i in range(len(category_bounds) - 1):
         if category_bounds[i] <= cagr < category_bounds[i + 1]:
             # Berechnung der proportionalen Position innerhalb der Kategorie
@@ -956,7 +956,7 @@ for cagr in cagr_values:
             upper_bound = category_bounds[i + 1]
             proportional_position = (cagr - lower_bound) / (upper_bound - lower_bound)
             x_position = i + proportional_position
-            x_positions.append(x_position)
+            x_positionen.append(x_position)
             break
 
 # Daten aus dem Indikator-Gleichgewichts-Modell (Anhang C)
@@ -977,11 +977,11 @@ ax.set_ylim(0, 100)
 
 # Punkte plotten
 for i, rohstoff in enumerate(rohstoffe):
-    ax.scatter(x_positions[i], gesamt_risikoscore[i], color=point_colors[i], label=f'{rohstoff} (Basis-Modell)', s=100)
+    ax.scatter(x_positionen[i], gesamt_risikoscore[i], color=point_colors[i], label=f'{rohstoff} (Basis-Modell)', s=100)
 
 # Weitere Punkte als Kreuze für das Indikator-Gleichgewichts-Modell
 for i, rohstoff in enumerate(rohstoffe):
-    ax.scatter(x_positions[i], indikator_gesamt_risikoscore[i], color=point_colors[i], marker='x', s=100, label=f'{rohstoff} (Indikator-Gleichgewichts-Modell)')
+    ax.scatter(x_positionen[i], indikator_gesamt_risikoscore[i], color=point_colors[i], marker='x', s=100, label=f'{rohstoff} (Indikator-Gleichgewichts-Modell)')
 
 # Linien für die Quadranten
 ax.axvline(x=1.5, color='black', linestyle='--')  # Vertikale Linie bei 12.5% CAGR
