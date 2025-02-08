@@ -162,7 +162,7 @@ hhi_werte = [
 farben = ["#1f77b4", "#ff7f0e", "#2ca02c"]  # Blau, Orange, Grün
 
 # Positionen für die Balken
-x_pos = np.arange(len(rohstoffe))  # [0, 1, 2, 3]
+x_position = np.arange(len(rohstoffe))  # [0, 1, 2, 3]
 bar_width = 0.25  # Breite der Balken
 
 # Initialisiere das Diagramm
@@ -171,7 +171,7 @@ fig, ax = plt.subplots(figsize=(10, 6))
 # Plotte die Balken für jede Kategorie
 for i, kategorie in enumerate(kategorien):
     # Verschieben der Balken je nach Kategorie
-    bar_positions = x_pos + i * bar_width
+    bar_positions = x_position + i * bar_width
     hhi_values = [hhi_werte[j][i] for j in range(len(rohstoffe))]
     ax.bar(bar_positions, hhi_values, width=bar_width, color=farben[i], label=kategorie)
 
@@ -179,7 +179,7 @@ for i, kategorie in enumerate(kategorien):
 ax.set_xlabel("Rohstoffe")
 ax.set_ylabel("HHI-Wert (normiert)")
 ax.set_title("Normierter Herfindahl-Hirschman Index (85% Marktabdeckung)")
-ax.set_xticks(x_pos + bar_width)  # Position der Rohstoffnamen
+ax.set_xticks(x_position + bar_width)  # Position der Rohstoffnamen
 ax.set_xticklabels(rohstoffe)
 ax.legend(title="Kategorien")
 
